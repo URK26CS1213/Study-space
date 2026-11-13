@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudySpace - Smart Study Planner</title>
+
+<style>
+:root {
+    --bg: #f5f7ff;
+    --ink: #17213b;
+    --muted: #71809c;
+    --primary: #635bdb;
+    --line: #e8ebf5;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Arial, sans-serif;
+}
+
+button, input, select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+}
+
+.app {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    background: white;
+    padding: 25px 17px;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    font-size: 21px;
+    font-weight: bold;
+    margin-bottom: 35px;
+}
+
+.logo {
+    background: var(--primary);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.nav button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 13px;
+    margin: 5px 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-weight: bold;
+}
+
+.nav button.active,
+.nav button:hover {
+    background: #f0efff;
+    color: var(--primary);
+}
+
+.note {
+    margin-top: auto;
+    background: #f4f3ff;
+    padding: 15px;
+    border-radius: 12px;
+    color: #68649f;
+    font-size: 13px;
+}
+
+/* Main content */
+.main {
+    padding: 28px 4%;
+    max-width: 1450px;
+    width: 100%;
+    margin: auto;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-size: 27px;
+}
+
+.date {
+    background: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: var(--muted);
+}
+
+.welcome {
+    background: linear-gradient(110deg, #625bd6, #827af0);
+    color: white;
+    border-radius: 20px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.welcome p {
+    color: #e9e8ff;
+}
+
+.emoji {
+    font-size: 45px;
+}
+
+/* Statistics */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.stat,
+.panel {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    padding: 18px;
+    margin-bottom: 17px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 27px;
+    margin: 12px 0;
+}
+
+.stat small,
+.muted {
+    color: var(--muted);
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1.5fr 0.9fr;
+    gap: 17px;
+}
+
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.panel h3 {
+    margin: 0;
+}
+
+.primary,
+.secondary {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.secondary {
+    background: #f0efff;
+    color: var(--primary);
+}
+
+/* Tasks */
+.task-list {
+    display: grid;
+    gap: 9px;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.task.done .task-title {
+    text-decoration: line-through;
+    color: #9aa5ba;
+}
+
+.task-check {
+    accent-color: var(--primary);
+    width: 18px;
+    height: 18px;
+}
+
+.task-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-title {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.task-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.tag {
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 20px;
+    background: #f0efff;
+    color: var(--primary);
+}
+
+.tag.high {
+    background: #fff0f0;
+    color: #d94f60;
+}
+
+.tag.low {
+    background: #eaf8f2;
+    color: #159b72;
+}
+
+.delete {
+    background: transparent;
+    color: #a6afc1;
+    font-size: 19px;
+}
+
+.empty {
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+}
+
+/* Progress */
+.progress {
+    height: 10px;
+    background: #eeeff7;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--primary), #9b94ff);
+}
+
+.progress-label,
+.goal-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin: 10px 0;
+}
+
+/* Timer */
+.timer {
+    text-align: center;
+    padding: 10px;
+}
+
+.timer-display {
+    font-size: 46px;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 12px;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.timer-controls button {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #f0efff;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.timer-controls .start {
+    background: var(--primary);
+    color: white;
+}
+
+/* Form */
+.quick-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field.full {
+    grid-column: 1 / -1;
+}
+
+.field label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: bold;
+}
+
+.field input,
+.field select {
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 11px;
+    min-width: 0;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+/* Pages */
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 7px;
+}
+
+.day {
+    background: #fafaff;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 11px 5px;
+    text-align: center;
+}
+
+.day small {
+    display: block;
+    color: var(--muted);
+    margin: 5px;
+}
+
+.day .count {
+    font-size: 19px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.tip {
+    background: #f0fbf7;
+    border-radius: 12px;
+    padding: 14px;
+    color: #327c65;
+    font-size: 13px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #17213b;
+    color: white;
+    padding: 12px 17px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: .2s;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.footer {
+    text-align: center;
+    color: #a0a9ba;
+    font-size: 12px;
+    padding: 12px;
+}
+
+/* Chatbot and calculator */
+.chat-window {
+    height: 330px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    background: #fafaff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.chat-message {
+    max-width: 85%;
+    padding: 10px 13px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.chat-message.bot {
+    background: #f0efff;
+    color: var(--ink);
+    align-self: flex-start;
+}
+
+.chat-message.user {
+    background: var(--primary);
+    color: white;
+    align-self: flex-end;
+}
+
+.chat-form {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-form input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.calculator {
+    max-width: 360px;
+    margin: 10px auto;
+    padding: 18px;
+    background: #f8f8ff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+}
+
+.calculator-display {
+    width: 100%;
+    padding: 17px 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: white;
+    text-align: right;
+    font-size: 27px;
+    color: var(--ink);
+    min-height: 64px;
+    overflow-x: auto;
+}
+
+.calculator-keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.calculator-keys button {
+    padding: 15px 8px;
+    border-radius: 10px;
+    background: white;
+    color: var(--ink);
+    font-weight: bold;
+    border: 1px solid var(--line);
+    font-size: 17px;
+}
+
+.calculator-keys button:hover {
+    background: #f0efff;
+}
+
+.calculator-keys .operator {
+    color: var(--primary);
+    background: #f0efff;
+}
+
+.calculator-keys .equals {
+    background: var(--primary);
+    color: white;
+}
+
+.calculator-keys .clear {
+    background: #fff0f0;
+    color: #d94f60;
+}
+
+/* Responsive design */
+@media(max-width:900px) {
+    .app {
+        grid-template-columns: 1fr;
+    }
+
+    .nav {
+        display: flex;
+        overflow: auto;
+    }
+
+    .nav button {
+        white-space: nowrap;
+        width: auto;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width:650px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+
+    .week-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .quick-form {
+        grid-template-columns: 1fr;
+    }
+
+    .field.full {
+        grid-column: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+
+    <div class="brand">
+        <span class="logo">✦</span>
+        StudySpace
+    </div>
+
+    <nav class="nav">
+        <button class="active" data-view="dashboard">
+            ▦ Dashboard
+        </button>
+
+        <button data-view="tasks">
+            ✓ My Tasks
+        </button>
+
+        <button data-view="planner">
+            ▤ Weekly Planner
+        </button>
+
+        <button data-view="focus">
+            ◷ Focus Timer
+        </button>
+
+        <button data-view="chatbot">
+            💬 Study Chatbot
+        </button>
+
+        <button data-view="calculator">
+            🧮 Calculator
+        </button>
+    </nav>
+
+    <div class="note">
+        <b>Small steps every day.</b>
+        <p>Stay consistent and celebrate your progress.</p>
+    </div>
+
+</aside>
+
+<!-- Main website -->
+<main class="main">
+
+<header class="topbar">
+    <div>
+        <div class="muted" id="greeting">
+            YOUR PERSONAL STUDY SPACE
+        </div>
+        <h1 id="pageTitle">Dashboard</h1>
+    </div>
+
+    <div class="date" id="today"></div>
+</header>
+
+<!-- Dashboard -->
+<section class="view active" id="dashboard">
+
+    <div class="welcome">
+        <div>
+            <h2>Make today count! ✨</h2>
+            <p>Plan your work and reach your goals.</p>
+        </div>
+        <div class="emoji">📚</div>
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            Total Tasks
+            <strong id="totalStat">0</strong>
+            <small>Tasks in your planner</small>
+        </div>
+
+        <div class="stat">
+            Completed
+            <strong id="doneStat">0</strong>
+            <small>Tasks finished</small>
+        </div>
+
+        <div class="stat">
+            Pending
+            <strong id="pendingStat">0</strong>
+            <small>Tasks left to do</small>
+        </div>
+
+        <div class="stat">
+            Completion
+            <strong id="percentStat">0%</strong>
+            <small>Overall progress</small>
+        </div>
+
+    </div>
+
+    <div class="content">
+
+        <div>
+
+            <section class="panel">
+
+                <div class="panel-head">
+                    <h3>Today's Tasks</h3>
+                    <button class="secondary"
+                        onclick="showView('tasks')">
+                        View All
+                    </button>
+                </div>
+
+                <div id="todayTasks" class="task-list"></div>
+
+            </section>
+
+            <section class="panel">
+
+                <h3>Weekly Overview</h3>
+                <br>
+
+                <div class="week-grid" id="weekGrid"></div>
+
+            </section>
+
+        </div>
+
+        <div>
+
+            <section class="panel">
+
+                <h3>Study Progress</h3>
+                <br>
+
+                <div class="progress-label">
+                    <span>Overall completion</span>
+                    <b id="progressText">0%</b>
+                </div>
+
+                <div class="progress">
+                    <div id="progressBar"></div>
+                </div>
+
+                <div class="goal-row">
+                    <span>Completed tasks</span>
+                    <strong id="completedLine">0</strong>
+                </div>
+
+                <div class="goal-row">
+                    <span>Tasks remaining</span>
+                    <strong id="remainingLine">0</strong>
+                </div>
+
+            </section>
+
+            <section class="panel">
+
+                <h3>Quick Focus 🍅</h3>
+
+                <div class="timer">
+
+                    <div class="muted">
+                        25-minute focus session
+                    </div>
+
+                    <div class="timer-display" id="miniTimer">
+                        25:00
+                    </div>
+
+                    <div class="timer-controls">
+                        <button class="start" onclick="startTimer()">
+                            Start
+                        </button>
+
+                        <button onclick="resetTimer()">
+                            Reset
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <div class="tip">
+                💡 Study Tip: Break a big topic into small tasks.
+                Finish one task at a time.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Tasks page -->
+<section class="view" id="tasks">
+
+    <section class="panel">
+
+        <div class="panel-head">
+            <h3>My Study Tasks</h3>
+
+            <button class="primary" onclick="openTaskForm()">
+                + Add Task
+            </button>
+        </div>
+
+        <div id="allTasks" class="task-list"></div>
+
+    </section>
+
+    <section class="panel" id="taskFormPanel"
+        style="display:none">
+
+        <div class="panel-head">
+            <h3>Add a New Task</h3>
+
+            <button class="delete" onclick="closeTaskForm()">
+                ✕
+            </button>
+        </div>
+
+        <form id="taskForm">
+
+            <div class="quick-form">
+
+                <div class="field full">
+                    <label>Task Name</label>
+                    <input id="taskName"
+                        placeholder="Enter task name"
+                        maxlength="70"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label>Subject</label>
+                    <input id="subject"
+                        placeholder="Enter subject"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label>Due Date</label>
+                    <input id="dueDate"
+                        type="date"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label>Priority</label>
+
+                    <select id="priority">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Study Time (minutes)</label>
+                    <input id="taskTime"
+                        type="number"
+                        min="5"
+                        max="600"
+                        value="30">
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                    class="secondary"
+                    onclick="closeTaskForm()">
+                    Cancel
+                </button>
+
+                <button class="primary" type="submit">
+                    Save Task
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</section>
+
+<!-- Weekly planner -->
+<section class="view" id="planner">
+
+    <section class="panel">
+
+        <h3>This Week's Planner</h3>
+        <br>
+
+        <div class="week-grid" id="plannerGrid"></div>
+
+    </section>
+
+    <section class="panel">
+
+        <h3>Upcoming Deadlines</h3>
+        <br>
+
+        <div id="upcomingTasks" class="task-list"></div>
+
+    </section>
+
+</section>
+
+<!-- Focus timer -->
+<section class="view" id="focus">
+
+    <section class="panel">
+
+        <h3>Focus Timer 🍅</h3>
+
+        <div class="timer">
+
+            <div class="muted" id="timerMode">
+                Focus session - 25 minutes
+            </div>
+
+            <div class="timer-display" id="largeTimer">
+                25:00
+            </div>
+
+            <div class="timer-controls">
+
+                <button class="start"
+                    id="timerStart"
+                    onclick="startTimer()">
+                    Start
+                </button>
+
+                <button onclick="pauseTimer()">
+                    Pause
+                </button>
+
+                <button onclick="resetTimer()">
+                    Reset
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="tip">
+            Study for 25 minutes and take a 5-minute break.
+            Repeat to improve your focus.
+        </div>
+
+    </section>
+
+</section>
+
+<!-- Study chatbot -->
+<section class="view" id="chatbot">
+    <section class="panel">
+        <h3>Study Assistant Chatbot 💬</h3>
+        <p class="muted">Ask questions about study planning, focus, time management, and productivity.</p>
+        <div class="chat-window" id="chatWindow" aria-live="polite">
+            <div class="chat-message bot">Hi! I'm your StudySpace assistant. How can I help you study better today?</div>
+        </div>
+        <form class="chat-form" id="chatForm">
+            <input id="chatInput" type="text" placeholder="Type your study question..." maxlength="300" required>
+            <button class="primary" type="submit">Send</button>
+        </form>
+        <p class="muted" style="font-size:12px;margin-top:10px;">Note: This is an offline demo chatbot with built-in answers. It is not connected to a live AI service.</p>
+    </section>
+</section>
+
+<!-- Calculator -->
+<section class="view" id="calculator">
+    <section class="panel">
+        <h3>Study Calculator 🧮</h3>
+        <p class="muted">Use this calculator for quick study-related calculations.</p>
+        <div class="calculator">
+            <div class="calculator-display" id="calcDisplay" aria-live="polite">0</div>
+            <div class="calculator-keys">
+                <button class="clear" type="button" onclick="clearCalculator()">AC</button>
+                <button type="button" onclick="deleteCalcDigit()">DEL</button>
+                <button class="operator" type="button" onclick="appendCalc('/')">÷</button>
+                <button class="operator" type="button" onclick="appendCalc('*')">×</button>
+
+                <button type="button" onclick="appendCalc('7')">7</button>
+                <button type="button" onclick="appendCalc('8')">8</button>
+                <button type="button" onclick="appendCalc('9')">9</button>
+                <button class="operator" type="button" onclick="appendCalc('-')">−</button>
+
+                <button type="button" onclick="appendCalc('4')">4</button>
+                <button type="button" onclick="appendCalc('5')">5</button>
+                <button type="button" onclick="appendCalc('6')">6</button>
+                <button class="operator" type="button" onclick="appendCalc('+')">+</button>
+
+                <button type="button" onclick="appendCalc('1')">1</button>
+                <button type="button" onclick="appendCalc('2')">2</button>
+                <button type="button" onclick="appendCalc('3')">3</button>
+                <button class="equals" type="button" onclick="calculateResult()" style="grid-row:span 2">=</button>
+
+                <button type="button" onclick="appendCalc('0')" style="grid-column:span 2">0</button>
+                <button type="button" onclick="appendCalc('.')">.</button>
+            </div>
+        </div>
+    </section>
+</section>
+
+<div class="footer">
+    StudySpace - Plan Smart. Study Better. 🌟
+</div>
+
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// Get HTML elements easily
+const $ = id => document.getElementById(id);
+
+// Get today's date
+const todayISO = () => {
+    let d = new Date();
+
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+// Load saved tasks
+let tasks = [];
+
+try {
+    tasks = JSON.parse(
+        localStorage.getItem('studyspace_tasks') || '[]'
+    );
+
+    if (!Array.isArray(tasks)) tasks = [];
+
+} catch(e) {
+    tasks = [];
+}
+
+// Timer variables
+let timerSeconds = 1500;
+let timerInterval = null;
+let timerRunning = false;
+let timerMode = 'focus';
+
+const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// Display date
+$('today').textContent =
+    new Date().toLocaleDateString(undefined, {
+        weekday:'short',
+        month:'short',
+        day:'numeric',
+        year:'numeric'
+    });
+
+// Greeting
+let hour = new Date().getHours();
+
+$('greeting').textContent =
+    hour < 12 ? 'GOOD MORNING ☀️' :
+    hour < 18 ? 'GOOD AFTERNOON 🌤️' :
+    'GOOD EVENING 🌙';
+
+// Save tasks in browser
+function save() {
+    localStorage.setItem(
+        'studyspace_tasks',
+        JSON.stringify(tasks)
+    );
+}
+
+// Prevent unsafe HTML from task text
+function esc(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+    }[c]));
+}
+
+// Format date
+function fmt(date) {
+    return date
+        ? new Date(date + 'T00:00:00')
+            .toLocaleDateString(undefined, {
+                month:'short',
+                day:'numeric'
+            })
+        : '';
+}
+
+// Show notification
+function toast(message) {
+    let t = $('toast');
+
+    t.textContent = message;
+    t.classList.add('show');
+
+    setTimeout(() => {
+        t.classList.remove('show');
+    }, 2200);
+}
+
+// Switch between website pages
+function showView(name) {
+
+    document.querySelectorAll('.view').forEach(v => {
+        v.classList.toggle('active', v.id === name);
+    });
+
+    document.querySelectorAll('.nav button').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === name);
+    });
+
+    $('pageTitle').textContent = ({
+        dashboard:'Dashboard',
+        tasks:'My Tasks',
+        planner:'Weekly Planner',
+        focus:'Focus Timer',
+        chatbot:'Study Chatbot',
+        calculator:'Calculator'
+    })[name];
+
+    render();
+}
+
+// Navigation buttons
+document.querySelectorAll('.nav button').forEach(button => {
+    button.addEventListener('click', () => {
+        showView(button.dataset.view);
+    });
+});
+
+// Create task display
+function taskHTML(t) {
+
+    return `
+    <div class="task ${t.done ? 'done' : ''}">
+
+        <input class="task-check"
+            type="checkbox"
+            ${t.done ? 'checked' : ''}
+            onchange="toggleTask('${t.id}')">
+
+        <div class="task-info">
+
+            <div class="task-title">
+                ${esc(t.title)}
+            </div>
+
+            <div class="task-meta">
+                ${esc(t.subject)} · Due ${fmt(t.due)}
+                · ${t.minutes || 30} min
+            </div>
+
+        </div>
+
+        <span class="tag ${t.priority.toLowerCase()}">
+            ${t.priority}
+        </span>
+
+        <button class="delete"
+            onclick="deleteTask('${t.id}')">
+            ×
+        </button>
+
+    </div>`;
+}
+
+// Update dashboard and task lists
+function render() {
+
+    let total = tasks.length;
+
+    let done = tasks.filter(t => t.done).length;
+
+    let pending = total - done;
+
+    let pct = total
+        ? Math.round(done / total * 100)
+        : 0;
+
+    $('totalStat').textContent = total;
+    $('doneStat').textContent = done;
+    $('pendingStat').textContent = pending;
+    $('percentStat').textContent = pct + '%';
+
+    $('progressText').textContent = pct + '%';
+    $('progressBar').style.width = pct + '%';
+
+    $('completedLine').textContent = done;
+    $('remainingLine').textContent = pending;
+
+    let sorted = [...tasks].sort((a,b) =>
+        a.due.localeCompare(b.due)
+    );
+
+    let today = tasks.filter(t =>
+        t.due === todayISO()
+    ).sort((a,b) => Number(a.done) - Number(b.done));
+
+    $('todayTasks').innerHTML = today.length
+        ? today.map(taskHTML).join('')
+        : '<div class="empty">No tasks due today. ✨</div>';
+
+    $('allTasks').innerHTML = sorted.length
+        ? sorted.map(taskHTML).join('')
+        : '<div class="empty">Your task list is empty. 📚</div>';
+
+    let upcoming = sorted.filter(t => !t.done);
+
+    $('upcomingTasks').innerHTML = upcoming.length
+        ? upcoming.map(taskHTML).join('')
+        : '<div class="empty">No pending deadlines. 🎉</div>';
+
+    week('weekGrid');
+    week('plannerGrid');
+}
+
+// Display weekly planner
+function week(id) {
+
+    let start = new Date();
+
+    start.setHours(0,0,0,0);
+
+    start.setDate(start.getDate() - start.getDay());
+
+    let output = '';
+
+    for(let i = 0; i < 7; i++) {
+
+        let d = new Date(start);
+
+        d.setDate(start.getDate() + i);
+
+        let key =
+            `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+        let count = tasks.filter(t =>
+            t.due === key
+        ).length;
+
+        output += `
+        <div class="day">
+
+            <strong>${days[d.getDay()]}</strong>
+
+            <small>${d.getDate()} ${d.toLocaleDateString(undefined,{month:'short'})}</small>
+
+            <div class="count">${count}</div>
+
+            <small>${count === 1 ? 'task' : 'tasks'}</small>
+
+        </div>`;
+    }
+
+    $(id).innerHTML = output;
+}
+
+// Open task form
+function openTaskForm() {
+
+    $('taskFormPanel').style.display = 'block';
+
+    $('dueDate').value = todayISO();
+
+    $('taskName').focus();
+}
+
+// Close task form
+function closeTaskForm() {
+
+    $('taskFormPanel').style.display = 'none';
+}
+
+// Add new task
+$('taskForm').addEventListener('submit', e => {
+
+    e.preventDefault();
+
+    let title = $('taskName').value.trim();
+
+    let subject = $('subject').value.trim();
+
+    let due = $('dueDate').value;
+
+    let minutes = Number($('taskTime').value);
+
+    if(!title || !subject || !due ||
+       minutes < 5 || minutes > 600) {
+
+        toast('Please check all task details.');
+
+        return;
+    }
+
+    tasks.push({
+
+        id: Date.now().toString(),
+
+        title: title,
+
+        subject: subject,
+
+        due: due,
+
+        priority: $('priority').value,
+
+        minutes: minutes,
+
+        done: false
+
+    });
+
+    save();
+
+    $('taskForm').reset();
+
+    closeTaskForm();
+
+    render();
+
+    toast('Task added successfully!');
+});
+
+// Complete or uncomplete task
+function toggleTask(id) {
+
+    let task = tasks.find(t => t.id === id);
+
+    if(task) {
+
+        task.done = !task.done;
+
+        save();
+
+        render();
+
+        toast(
+            task.done
+            ? 'Task completed! Great job 🎉'
+            : 'Task marked pending.'
+        );
+    }
+}
+
+// Delete task
+function deleteTask(id) {
+
+    if(confirm('Delete this task?')) {
+
+        tasks = tasks.filter(t => t.id !== id);
+
+        save();
+
+        render();
+
+        toast('Task deleted.');
+    }
+}
+
+// Update timer display
+function updateTimer() {
+
+    let minutes = String(
+        Math.floor(timerSeconds / 60)
+    ).padStart(2,'0');
+
+    let seconds = String(
+        timerSeconds % 60
+    ).padStart(2,'0');
+
+    $('miniTimer').textContent =
+        minutes + ':' + seconds;
+
+    $('largeTimer').textContent =
+        minutes + ':' + seconds;
+
+    $('timerMode').textContent =
+        timerMode === 'focus'
+        ? 'Focus session - 25 minutes'
+        : 'Break time - 5 minutes';
+}
+
+// Start timer
+function startTimer() {
+
+    if(timerRunning) return;
+
+    timerRunning = true;
+
+    $('timerStart').textContent = 'Running';
+
+    timerInterval = setInterval(() => {
+
+        timerSeconds--;
+
+        updateTimer();
+
+        if(timerSeconds <= 0) {
+
+            clearInterval(timerInterval);
+
+            timerRunning = false;
+
+            timerMode =
+                timerMode === 'focus'
+                ? 'break'
+                : 'focus';
+
+            timerSeconds =
+                timerMode === 'focus'
+                ? 1500
+                : 300;
+
+            updateTimer();
+
+            $('timerStart').textContent = 'Start';
+
+            toast(
+                timerMode === 'break'
+                ? 'Focus complete! Take a break.'
+                : 'Break finished! Ready to focus?'
+            );
+        }
+
+    }, 1000);
+}
+
+// Pause timer
+function pauseTimer() {
+
+    clearInterval(timerInterval);
+
+    timerRunning = false;
+
+    $('timerStart').textContent = 'Resume';
+}
+
+// Reset timer
+function resetTimer() {
+
+    clearInterval(timerInterval);
+
+    timerRunning = false;
+
+    timerMode = 'focus';
+
+    timerSeconds = 1500;
+
+    $('timerStart').textContent = 'Start';
+
+    updateTimer();
+}
+
+// Study chatbot: simple built-in replies (works offline)
+function addChatMessage(message, sender) {
+    const item = document.createElement('div');
+    item.className = 'chat-message ' + sender;
+    item.textContent = message;
+    $('chatWindow').appendChild(item);
+    $('chatWindow').scrollTop = $('chatWindow').scrollHeight;
+}
+
+function getChatbotReply(question) {
+    const q = question.toLowerCase();
+
+    if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+        return 'Hello! Ready to make progress? Tell me what subject you are studying.';
+    }
+    if (q.includes('time') || q.includes('schedule') || q.includes('plan')) {
+        return 'Create a task with a due date and estimated study time. Start with the most important task and divide large topics into smaller parts.';
+    }
+    if (q.includes('focus') || q.includes('concentrat') || q.includes('distract')) {
+        return 'Try the 25-minute Focus Timer. Keep your phone away, study one topic, and take a 5-minute break when the session ends.';
+    }
+    if (q.includes('break') || q.includes('tired') || q.includes('rest')) {
+        return 'Take a short 5-minute break after a focused study session. Stretch, drink water, and return when the break is over.';
+    }
+    if (q.includes('task') || q.includes('homework') || q.includes('assignment')) {
+        return 'Open My Tasks and add the task name, subject, due date, priority, and estimated study time. Mark it completed when you finish.';
+    }
+    if (q.includes('exam') || q.includes('revision') || q.includes('test')) {
+        return 'For exam preparation, list each topic as a task, revise a little every day, practise questions, and review difficult topics again.';
+    }
+    if (q.includes('motivat') || q.includes('lazy') || q.includes('procrastinat')) {
+        return 'Start with just 10 minutes. Choose one small task, remove distractions, and reward yourself after completing it. Small steps add up!';
+    }
+    if (q.includes('progress') || q.includes('completed')) {
+        return 'Your Dashboard shows total, completed, and pending tasks. Mark each finished task with its checkbox to update your progress.';
+    }
+    if (q.includes('thank')) {
+        return 'You are welcome! Keep going — every completed task is progress. 😊';
+    }
+    return 'I can help with study planning, focus, breaks, tasks, exam revision, motivation, and progress. Try asking: "How can I improve my focus?"';
+}
+
+$('chatForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const question = $('chatInput').value.trim();
+    if (!question) return;
+
+    addChatMessage(question, 'user');
+    $('chatInput').value = '';
+
+    // A short delay makes the reply feel conversational.
+    setTimeout(() => addChatMessage(getChatbotReply(question), 'bot'), 250);
+});
+
+// Calculator logic
+let calcExpression = '';
+
+function updateCalculatorDisplay(value) {
+    $('calcDisplay').textContent = value || '0';
+}
+
+function appendCalc(value) {
+    const operators = ['+', '-', '*', '/'];
+    const last = calcExpression.slice(-1);
+
+    if (operators.includes(value)) {
+        if (!calcExpression && value !== '-') return;
+        if (operators.includes(last)) {
+            calcExpression = calcExpression.slice(0, -1);
+        }
+    }
+
+    if (value === '.') {
+        const currentNumber = calcExpression.split(/[+\-*/]/).pop();
+        if (currentNumber.includes('.')) return;
+        if (!currentNumber) value = '0.';
+    }
+
+    if (calcExpression.length >= 28) return;
+    calcExpression += value;
+    updateCalculatorDisplay(calcExpression);
+}
+
+function clearCalculator() {
+    calcExpression = '';
+    updateCalculatorDisplay('0');
+}
+
+function deleteCalcDigit() {
+    calcExpression = calcExpression.slice(0, -1);
+    updateCalculatorDisplay(calcExpression);
+}
+
+function calculateResult() {
+    if (!calcExpression) return;
+
+    // Only allow digits, decimal points, and arithmetic operators.
+    if (!/^[0-9+\-*/. ]+$/.test(calcExpression)) {
+        updateCalculatorDisplay('Invalid input');
+        calcExpression = '';
+        return;
+    }
+
+    try {
+        const result = Function('"use strict"; return (' + calcExpression + ')')();
+
+        if (!Number.isFinite(result)) {
+            throw new Error('Invalid calculation');
+        }
+
+        calcExpression = String(Number(result.toFixed(10)));
+        updateCalculatorDisplay(calcExpression);
+
+    } catch (error) {
+        calcExpression = '';
+        updateCalculatorDisplay('Error');
+    }
+}
+
+// Initial display
+updateTimer();
+
+render();
+
+</script>
+
+</body>
+</html>
